@@ -1,4 +1,4 @@
-usion     ![Build Status](https://travis-ci.org/asynchorswim/fusion.svg?branch=master)
+Fusion     ![Build Status](https://travis-ci.org/asynchorswim/fusion.svg?branch=master)
 =======
 Fusion provides state management and flexible persistence for Scala/Akka.
 
