@@ -5,7 +5,7 @@ import asynchorswim.fusion.ControlMessages.StreamEventEnvelope
 
 import scala.reflect.runtime.{universe => ru}
 
-class PersistentEntity[A <: Entity[A] : ru.TypeTag](persistor: Persistor[A])(implicit timeProvider: TimeProvider) extends Actor with ActorLogging {
+class PersistentEntity[A <: Entity[A] with Persistable : ru.TypeTag](persistor: Persistor[A])(implicit timeProvider: TimeProvider) extends Actor with ActorLogging {
   private val persistenceId: String = context.parent.path.name + "-" + self.path.name
 
   private var state: A = persistor.get(persistenceId).getOrElse(Entity.companion[A].empty)
@@ -34,6 +34,6 @@ class PersistentEntity[A <: Entity[A] : ru.TypeTag](persistor: Persistor[A])(imp
   }
 }
 
-class PersistentEntityPropsFactory[A <: Entity[A] : ru.TypeTag](persistor: Persistor[A]) extends EntityPropsFactory {
+class PersistentEntityPropsFactory[A <: Entity[A] with Persistable : ru.TypeTag](persistor: Persistor[A]) extends EntityPropsFactory {
   override def props[B <: Entity[B] : ru.TypeTag](implicit timeProvider: TimeProvider): Props = Props(new PersistentEntity[A](persistor))
 }

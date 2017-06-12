@@ -27,7 +27,10 @@ class EntityUnitTest extends FlatSpec with Matchers with MockitoSugar {
 
 }
 
-case class TestEntity(num: Int) extends Entity[TestEntity] {
+case class TestEntity(num: Int) extends Entity[TestEntity] with Persistable {
+
+  override def id = "count"
+
   override def receive(implicit ctx: Context): PartialFunction[Any, Seq[Event]] = {
     case "inc" | Increment(_) | Inc => applying(Incremented, Ignored)
     case "dec" | Decrement(_) | Dec => applying(Decremented)
