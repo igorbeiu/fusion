@@ -72,13 +72,13 @@ class EventSourcedEntityUnitTest extends AsyncFlatSpec with Matchers {
     val sut2 = system.actorOf(EventSourcedEntity.props[TestEntity], "testEntity")
     (sut2 ? "value") map { _ shouldBe 2 }
     sut2 ! ControlMessages.Expunge("")
-    Thread.sleep(2000)
+    Thread.sleep(5000)
     val sut3 = system.actorOf(EventSourcedEntity.props[TestEntity], "testEntity")
     (sut3 ? "value") map { _ shouldBe 0 }
     sut3 ! "inc"
     (sut3 ? "value") map { _ shouldBe 1 }
     sut3 ! ControlMessages.Stop
-    Thread.sleep(2000)
+    Thread.sleep(5000)
     val sut4 = system.actorOf(EventSourcedEntity.props[TestEntity], "testEntity")
     (sut4 ? "value") map { _ shouldBe 1 }
 
