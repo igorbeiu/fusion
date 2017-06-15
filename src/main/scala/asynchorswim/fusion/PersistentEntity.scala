@@ -8,7 +8,7 @@ import scala.reflect.runtime.{universe => ru}
 class PersistentEntity[A <: Entity[A] with Persistable : ru.TypeTag](persistor: Persistor[A])(implicit timeProvider: TimeProvider) extends Actor with ActorLogging {
   private val persistenceId: String = context.parent.path.name + "-" + self.path.name
 
-  private var state: A = persistor.get(persistenceId).getOrElse(Entity.companion[A].empty)
+  private var state: A = persistor.get(self.path.name).getOrElse(Entity.companion[A].empty)
 
   private val ctx = Context(timeProvider, Some(context), log)
 
