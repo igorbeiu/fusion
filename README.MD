@@ -9,13 +9,13 @@ _SBT_
 
 Add the following to your `build.sbt` file:
 
-`libraryDependencies += "net.asynchorswim" %% "fusion" % "1.0.0"`
+`libraryDependencies += "net.asynchorswim" %% "fusion" % "1.0.1"`
 
 _Gradle_
 
 Add the following to ytour `build.gradle` file within the `dependencies` section:
 
-`compile 'net.asynchorswim:fusion_2,12:1.0.0'`
+`compile 'net.asynchorswim:fusion_2,12:1.0.1'`
 
 Usage
 -----
