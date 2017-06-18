@@ -18,7 +18,7 @@ class PersistentEntityUnitTest extends AsyncFlatSpec with Matchers {
   private implicit val system = ActorSystem()
   private implicit val timeout = Timeout(10 seconds)
   private val sepf = new PersistentEntityPropsFactory[TestEntity](new TestEntityTestPersistor)
-  private val sut = system.actorOf(sepf.props, "testEntity")
+  private val sut = system.actorOf(sepf.props, "count")
 
   "PersistentEntity" should "handle normal messages" in {
     sut ! "inc"
@@ -46,17 +46,17 @@ class PersistentEntityUnitTest extends AsyncFlatSpec with Matchers {
   }
 
   it should "delete its state after an Expunge message" in {
-    val sut2 = system.actorOf(sepf.props, "testEntity")
+    val sut2 = system.actorOf(sepf.props, "count")
     (sut2 ? "value") map { _ shouldBe 2 }
     sut2 ! ControlMessages.Expunge("")
     Thread.sleep(500)
-    val sut3 = system.actorOf(sepf.props, "testEntity")
+    val sut3 = system.actorOf(sepf.props, "count")
     (sut3 ? "value") map { _ shouldBe 0 }
     sut3 ! "inc"
     (sut3 ? "value") map { _ shouldBe 1 }
     sut3 ! ControlMessages.Stop
     Thread.sleep(500)
-    val sut4 = system.actorOf(sepf.props, "testEntity")
+    val sut4 = system.actorOf(sepf.props, "count")
     (sut4 ? "value") map { _ shouldBe 1 }
   }
 }
