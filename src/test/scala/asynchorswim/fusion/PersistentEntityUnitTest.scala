@@ -41,7 +41,7 @@ class PersistentEntityUnitTest extends AsyncFlatSpec with Matchers {
   it should "retain state across lifetimes" in {
     sut ! ControlMessages.Stop
     Thread.sleep(100)
-    val sut2 = system.actorOf(sepf.props, "testEntity")
+    val sut2 = system.actorOf(sepf.props, "count")
     (sut2 ? "value") map {v =>  sut2 ! ControlMessages.Stop ;v shouldBe 2 }
   }
 
@@ -55,7 +55,7 @@ class PersistentEntityUnitTest extends AsyncFlatSpec with Matchers {
     sut3 ! "inc"
     (sut3 ? "value") map { _ shouldBe 1 }
     sut3 ! ControlMessages.Stop
-    Thread.sleep(500)
+    Thread.sleep(5000)
     val sut4 = system.actorOf(sepf.props, "count")
     (sut4 ? "value") map { _ shouldBe 1 }
   }
