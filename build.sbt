@@ -4,7 +4,7 @@ version := "1.0.1"
 
 scalaVersion := "2.12.2"
 
-val akkaVersion = "2.5.2"
+val akkaVersion = "2.5.3"
 val json4sVersion = "3.5.2"
 
 libraryDependencies ++= Seq(
