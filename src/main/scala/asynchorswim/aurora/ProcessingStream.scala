@@ -9,7 +9,7 @@ import asynchorswim.fusion.{ControlMessages, EntityRefFlow, Event}
 import asynchorswim.fusion.ControlMessages.{StreamCommandEnvelope, StreamEventEnvelope}
 import asynchorswim.fusion.util.Bookmarks
 
-class ProcessingStream(in: Source[StreamCommandEnvelope[_], NotUsed], domain: ActorRef, bookmarks: ActorRef, notify: PartialFunction[Event, Unit])
+class ProcessingStream(in: Source[StreamCommandEnvelope[_], NotUsed], domain: ActorRef, bookmarks: ActorRef, notify: PartialFunction[Event, Unit], metrics: StreamMetrics)
   (implicit val mat: ActorMaterializer, timrout: Timeout) extends Actor with ActorLogging {
 
   private val stream =
@@ -30,6 +30,6 @@ object ProcessingStream {
 
   val ignore: PartialFunction[Event, Unit] = { case evt: Event => }
 
-  def props(in: Source[StreamCommandEnvelope[_], NotUsed], domain: ActorRef, bookmarks: ActorRef, notify: PartialFunction[Event, Unit])(implicit mat: ActorMaterializer, timrout: Timeout): Props =
-    Props(new ProcessingStream(in, domain, bookmarks, notify))
+  def props(in: Source[StreamCommandEnvelope[_], NotUsed], domain: ActorRef, bookmarks: ActorRef, notify: PartialFunction[Event, Unit], metrics: StreamMetrics = StreamMetrics.empty)(implicit mat: ActorMaterializer, timrout: Timeout): Props =
+    Props(new ProcessingStream(in, domain, bookmarks, notify, metrics))
 }

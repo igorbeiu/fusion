@@ -6,6 +6,7 @@ scalaVersion := "2.12.2"
 
 val akkaVersion = "2.5.3"
 val json4sVersion = "3.5.2"
+val kamonVersion = "0.6.7"
 
 libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-actor" % akkaVersion,
@@ -30,6 +31,8 @@ libraryDependencies ++= Seq(
   "com.typesafe" % "config" % "1.3.1",
   "org.json4s" %% "json4s-core" % json4sVersion,
   "org.json4s" %% "json4s-jackson" % json4sVersion,
+  "io.kamon" %% "kamon-core" % kamonVersion,
+
   "com.github.dnvriend" %% "akka-persistence-inmemory" % "2.5.0.0" % "test",
   "io.getquill" %% "quill" % "1.2.1" % "test",
   "io.getquill" %% "quill-cassandra" % "1.2.1" % "test",

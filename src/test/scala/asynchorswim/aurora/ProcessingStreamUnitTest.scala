@@ -35,7 +35,7 @@ class ProcessingStreamUnitTest extends FlatSpec with Matchers {
       StreamCommandEnvelope("test", 3, "Test"))
     )
 
-    val sut = system.actorOf(ProcessingStream.props(s, cc, bm, { case _ => c = c + 1 }))
+    val sut = system.actorOf(ProcessingStream.props(s, cc, bm, { case _ => c = c + 1 }, StreamMetrics.empty))
     eventually(timeout(5 seconds), interval(500 millis)) { c shouldBe 8 }
   }
 }
