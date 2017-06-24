@@ -15,8 +15,14 @@ class ProcessingStream(in: Source[StreamCommandEnvelope[_], NotUsed], domain: Ac
   private val stream =
     in
       .log("StreamCommands", sce => sce)
+      .map { c => metrics.in.increment(); c}
       .via(new EntityRefFlow(domain).flow)
-      .map { case see@StreamEventEnvelope(_, _, e) => (notify orElse ProcessingStream.ignore) (e); see }
+      .map { case see@StreamEventEnvelope(_, _, e) =>
+        metrics.events.increment()
+        (notify orElse ProcessingStream.ignore) (e)
+        if (e == ControlMessages.CommandComplete) metrics.complete.increment()
+        see
+      }
       .map { case see@StreamEventEnvelope(t, o, _) => bookmarks ! Bookmarks.Put(t, o); see }
       .runWith(Sink.ignore)
 

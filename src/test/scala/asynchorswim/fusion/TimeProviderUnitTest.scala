@@ -21,7 +21,7 @@ class TimeProviderUnitTest extends FlatSpec with Matchers {
   }
 
   "SystemTimeProvider" should "return current milliseconds" in {
-    SystemTimeProvider.millis shouldBe System.currentTimeMillis() +- 10
+    SystemTimeProvider.millis shouldBe System.currentTimeMillis() +- 100
   }
 
   it should "return the current LocalDate" in {
@@ -29,7 +29,7 @@ class TimeProviderUnitTest extends FlatSpec with Matchers {
   }
 
   it should "return the current Instant" in {
-    SystemTimeProvider.now.toEpochMilli shouldBe System.currentTimeMillis() +- 10
+    SystemTimeProvider.now.toEpochMilli shouldBe System.currentTimeMillis() +- 100
   }
 
 }
