@@ -63,22 +63,23 @@ class EventSourcedEntityUnitTest extends AsyncFlatSpec with Matchers {
 
   it should "retain state across lifetimes" in {
     sut ! ControlMessages.Stop
-    Thread.sleep(100)
+    Thread.sleep(1000)
     val sut2 = system.actorOf(EventSourcedEntity.props[TestEntity], "testEntity")
     (sut2 ? "value") map {v =>  sut2 ! ControlMessages.Stop ;v shouldBe 2 }
   }
 
   it should "delete its state after an Expunge message" in {
+    Thread.sleep(1000)
     val sut2 = system.actorOf(EventSourcedEntity.props[TestEntity], "testEntity")
     (sut2 ? "value") map { _ shouldBe 2 }
     sut2 ! ControlMessages.Expunge("")
-    Thread.sleep(5000)
+    Thread.sleep(1000)
     val sut3 = system.actorOf(EventSourcedEntity.props[TestEntity], "testEntity")
     (sut3 ? "value") map { _ shouldBe 0 }
     sut3 ! "inc"
     (sut3 ? "value") map { _ shouldBe 1 }
     sut3 ! ControlMessages.Stop
-    Thread.sleep(5000)
+    Thread.sleep(1000)
     val sut4 = system.actorOf(EventSourcedEntity.props[TestEntity], "testEntity")
     (sut4 ? "value") map { _ shouldBe 1 }
 
