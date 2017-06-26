@@ -73,6 +73,7 @@ class CommandSourcedEntityUnitTest extends AsyncFlatSpec with Matchers {
   }
 
   it should "handle Expunge correctly" in {
+    Thread.sleep(100)
     val sut2 = system.actorOf(CommandSourcedEntity.props[TestEntity], "testEntity")
     (sut2 ? "value") map { _ shouldBe 1 }
     sut2 ! ControlMessages.Expunge("")
