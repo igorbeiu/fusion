@@ -2,7 +2,6 @@ package asynchorswim.aurora
 
 import com.typesafe.config.{Config, ConfigFactory}
 
-
 trait ConfigSupport { this: App =>
   def name: Symbol
 
