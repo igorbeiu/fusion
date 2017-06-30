@@ -1,4 +1,4 @@
-package asynchorswim.fusion.util
+package asynchorswim.aurora
 
 object Bookmarks {
   final case class Get(topic: String)

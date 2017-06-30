@@ -7,7 +7,6 @@ import akka.stream.scaladsl.{Sink, Source}
 import akka.util.Timeout
 import asynchorswim.fusion.{ControlMessages, EntityRefFlow, Event}
 import asynchorswim.fusion.ControlMessages.{StreamCommandEnvelope, StreamEventEnvelope}
-import asynchorswim.fusion.util.Bookmarks
 
 class ProcessingStream(in: Source[StreamCommandEnvelope[_], NotUsed], domain: ActorRef, bookmarks: ActorRef, notify: PartialFunction[Event, Unit], metrics: StreamMetrics)
   (implicit val mat: ActorMaterializer, timrout: Timeout) extends Actor with ActorLogging {
