@@ -20,7 +20,7 @@ scmInfo := Some(
   )
 )
 developers := List(
-  Developer(id="asynchorswim", name="Sean P. Hawkins", email="seanphawkins@gmail.com", url=url("asynchorswim.net"))
+  Developer(id="asynchorswim", name="Sean P. Hawkins", email="seanphawkins@gmail.com", url=url("http://asynchorswim.net"))
 )
 
 val akkaVersion = "2.5.3"
