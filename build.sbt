@@ -12,6 +12,19 @@ publishTo := {
     Some("releases"  at nexus + "service/local/staging/deploy/maven2")
 }
 
+sonatypeProfileName := "org.asynchorswim"
+
+publishMavenStyle := true
+
+licenses := Seq("APL2" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt"))
+homepage := Some(url("https://(asynchorswim.net"))
+scmInfo := Some(
+  ScmInfo(
+    url("https://github.com/asynchorswim/fusion"),
+    "scm:git@github.com:asynchorswim/fusion.git"
+  )
+)
+
 val akkaVersion = "2.5.3"
 val json4sVersion = "3.5.2"
 val kamonVersion = "0.6.7"
