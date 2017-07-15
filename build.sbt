@@ -5,13 +5,7 @@ scalaVersion := "2.12.2"
 releasePublishArtifactsAction := PgpKeys.publishSigned.value
 releaseIgnoreUntrackedFiles := true
 
-publishTo := {
-  val nexus = "https://my.artifact.repo.net/"
-  if (isSnapshot.value)
-    Some("snapshots" at nexus + "content/repositories/snapshots")
-  else
-    Some("releases"  at nexus + "service/local/staging/deploy/maven2")
-}
+publishTo := Some("Sonatype Nexus Repository Manager"  at "https://oss.sonatype.org/service/local/staging/deploy/maven2/")
 
 sonatypeProfileName := "org.asynchorswim"
 
