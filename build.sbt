@@ -1,8 +1,16 @@
 name := "fusion"
 organization := "net.asynchorswim"
-version := "1.0.1"
 
 scalaVersion := "2.12.2"
+releasePublishArtifactsAction := PgpKeys.publishSigned.value
+
+publishTo := {
+  val nexus = "https://my.artifact.repo.net/"
+  if (isSnapshot.value)
+    Some("snapshots" at nexus + "content/repositories/snapshots")
+  else
+    Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+}
 
 val akkaVersion = "2.5.3"
 val json4sVersion = "3.5.2"
