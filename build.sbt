@@ -3,6 +3,7 @@ organization := "net.asynchorswim"
 
 scalaVersion := "2.12.2"
 releasePublishArtifactsAction := PgpKeys.publishSigned.value
+releaseIgnoreUntrackedFiles := true
 
 publishTo := {
   val nexus = "https://my.artifact.repo.net/"
