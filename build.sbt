@@ -19,6 +19,9 @@ scmInfo := Some(
     "scm:git@github.com:asynchorswim/fusion.git"
   )
 )
+developers := List(
+  Developer(id="asynchorswim", name="Sean P. Hawkins", email="seanphawkins@gmail.com", url=url("asynchorswim.net"))
+)
 
 val akkaVersion = "2.5.3"
 val json4sVersion = "3.5.2"
