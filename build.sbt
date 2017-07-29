@@ -1,3 +1,5 @@
+import ReleaseTransformations._
+
 name := "fusion"
 organization := "net.asynchorswim"
 
@@ -5,8 +7,12 @@ scalaVersion := "2.12.2"
 releasePublishArtifactsAction := PgpKeys.publishSigned.value
 releaseIgnoreUntrackedFiles := true
 
-publishTo := Some("Sonatype Nexus Repository Manager"  at "https://oss.sonatype.org/service/local/staging/deploy/maven2/")
-
+publishTo := Some(
+  if (isSnapshot.value)
+    Opts.resolver.sonatypeSnapshots
+  else
+    Opts.resolver.sonatypeStaging
+)
 sonatypeProfileName := "org.asynchorswim"
 
 publishMavenStyle := true
@@ -21,6 +27,21 @@ scmInfo := Some(
 )
 developers := List(
   Developer(id="asynchorswim", name="Sean P. Hawkins", email="seanphawkins@gmail.com", url=url("http://asynchorswim.net"))
+)
+
+releaseProcess := Seq[ReleaseStep](
+  checkSnapshotDependencies,
+  inquireVersions,
+  runClean,
+  runTest,
+  setReleaseVersion,
+  commitReleaseVersion,
+  tagRelease,
+  ReleaseStep(action = Command.process("publishSigned", _)),
+  setNextVersion,
+  commitNextVersion,
+  ReleaseStep(action = Command.process("sonatypeReleaseAll", _)),
+  pushChanges
 )
 
 val akkaVersion = "2.5.3"

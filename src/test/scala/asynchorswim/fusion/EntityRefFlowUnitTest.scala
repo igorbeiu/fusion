@@ -20,7 +20,7 @@ class EntityRefFlowUnitTest extends AsyncFlatSpec with Matchers {
   private implicit val ec = system.dispatcher
   private implicit val timeout = Timeout(1 second)
   private val now = Instant.now
-  private implicit val timeProvider = new FixedTimeProvider(now)
+  private implicit val fc = FusionConfig(new FixedTimeProvider(now), asyncIO = false)
 
   private val testEntity = system.actorOf(TransientEntity.props[TestEntity], "testEntity")
 

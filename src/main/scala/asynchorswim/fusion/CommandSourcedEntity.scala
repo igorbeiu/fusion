@@ -6,12 +6,12 @@ import ControlMessages.StreamEventEnvelope
 
 import scala.reflect.runtime.{universe => ru}
 
-class CommandSourcedEntity[A <: Entity[A] : ru.TypeTag](implicit timeProvider: TimeProvider) extends PersistentActor with ActorLogging with Stash {
+class CommandSourcedEntity[A <: Entity[A] : ru.TypeTag](implicit fc: FusionConfig) extends PersistentActor with ActorLogging with Stash {
   override val persistenceId: String  = context.parent.path.name + "-"  + self.path.name
 
   private var state: A = Entity.companion[A].empty
 
-  private val ctx = Context(timeProvider, Some(context), log)
+  private val ctx = Context(fc.timeProvider, Some(context), log)
 
   override def receiveRecover: Receive = {
     case SnapshotOffer(_, ss) =>
@@ -35,18 +35,28 @@ class CommandSourcedEntity[A <: Entity[A] : ru.TypeTag](implicit timeProvider: T
     case ControlMessages.TakeSnapshot =>
       saveSnapshot(state)
     case ControlMessages.StreamCommandEnvelope(t, o, c: Command) =>
-      persist(CommandEnvelope(c)) { pc =>
-        sender ! (state.receive(ctx) orElse state.unhandled(ctx))(pc)
-          .map { e => state = state.applyEvent(e); StreamEventEnvelope(t, o, e) }
-          .collect { case see@StreamEventEnvelope(_, _, e: Externalized) => see } ++ Seq(ControlMessages.StreamEventEnvelope(t, o, ControlMessages.CommandComplete))
-      }
+      if (fc.asyncIO)
+        persistAsync(CommandEnvelope(c)) { pc =>
+          sender ! (state.receive(ctx) orElse state.unhandled(ctx)) (pc)
+            .map { e => state = state.applyEvent(e); StreamEventEnvelope(t, o, e) }
+            .collect { case see@StreamEventEnvelope(_, _, e: Externalized) => see } ++ Seq(ControlMessages.StreamEventEnvelope(t, o, ControlMessages.CommandComplete))
+        }
+      else
+        persist(CommandEnvelope(c)) { pc =>
+          sender ! (state.receive(ctx) orElse state.unhandled(ctx)) (pc)
+            .map { e => state = state.applyEvent(e); StreamEventEnvelope(t, o, e) }
+            .collect { case see@StreamEventEnvelope(_, _, e: Externalized) => see } ++ Seq(ControlMessages.StreamEventEnvelope(t, o, ControlMessages.CommandComplete))
+        }
     case ControlMessages.StreamCommandEnvelope(t, o, m) =>
       sender ! (state.receive(ctx) orElse state.unhandled(ctx))(m)
         .map { e => state = state.applyEvent(e); StreamEventEnvelope(t, o, e) }
         .collect { case see@StreamEventEnvelope(_, _, e: Externalized) => see } ++ Seq(ControlMessages.StreamEventEnvelope(t, o, ControlMessages.CommandComplete))
     case _: ControlMessage =>
     case c: Command =>
-      persist(CommandEnvelope(c)) { ce => processCommand(ce.c) }
+      if (fc.asyncIO)
+        persistAsync(CommandEnvelope(c)) { ce => processCommand(ce.c) }
+      else
+        persist(CommandEnvelope(c)) { ce => processCommand(ce.c) }
     case msg =>
       processCommand(msg)
 
@@ -57,7 +67,7 @@ class CommandSourcedEntity[A <: Entity[A] : ru.TypeTag](implicit timeProvider: T
 }
 
 object CommandSourcedEntity extends EntityPropsFactory {
-  override def props[A <: Entity[A]: ru.TypeTag](implicit timeProvider: TimeProvider): Props = Props(new CommandSourcedEntity[A])
+  override def props[A <: Entity[A]: ru.TypeTag](implicit fc: FusionConfig): Props = Props(new CommandSourcedEntity[A])
 }
 
 case class CommandEnvelope(c: Command)

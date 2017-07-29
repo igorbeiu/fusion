@@ -12,7 +12,7 @@ import scala.language.postfixOps
 
 class AggregateRootUnitTest extends AsyncFlatSpec with Matchers {
   private val now = Instant.now
-  private implicit val timeProvider = new FixedTimeProvider(now)
+  private implicit val fc = FusionConfig(new FixedTimeProvider(now), asyncIO = false)
   private implicit val timeout = Timeout(1 second)
   private val system = ActorSystem()
 

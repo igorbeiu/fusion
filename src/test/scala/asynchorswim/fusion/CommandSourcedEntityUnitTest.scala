@@ -39,7 +39,7 @@ class CommandSourcedEntityUnitTest extends AsyncFlatSpec with Matchers {
   private val config = ConfigFactory.parseString(configString)
   private val system = ActorSystem("testSystem", config)
   private val now = Instant.now
-  private implicit val timeProvider = new FixedTimeProvider(now)
+  private implicit val fc = FusionConfig(new FixedTimeProvider(now), asyncIO = false)
   private val sut = system.actorOf(CommandSourcedEntity.props[TestEntity], "testEntity")
   private implicit val timeout = Timeout(10 second)
 

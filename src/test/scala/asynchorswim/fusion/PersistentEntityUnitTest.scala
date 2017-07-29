@@ -14,7 +14,7 @@ import scala.collection.mutable
 
 class PersistentEntityUnitTest extends AsyncFlatSpec with Matchers {
   private val now = Instant.now
-  private implicit val timeProvider = new FixedTimeProvider(now)
+  private implicit val fc = FusionConfig(new FixedTimeProvider(now), asyncIO = false)
   private implicit val system = ActorSystem()
   private implicit val timeout = Timeout(10 seconds)
   private val sepf = new PersistentEntityPropsFactory[TestEntity](new TestEntityTestPersistor)

@@ -6,12 +6,12 @@ import asynchorswim.fusion.ControlMessages.StreamEventEnvelope
 
 import scala.reflect.runtime.{universe => ru}
 
-class EventSourcedEntity[A <: Entity[A] : ru.TypeTag](implicit timeProvider: TimeProvider) extends PersistentActor with ActorLogging with Stash {
+class EventSourcedEntity[A <: Entity[A] : ru.TypeTag](implicit fc: FusionConfig) extends PersistentActor with ActorLogging with Stash {
   override val persistenceId: String  = context.parent.path.name + "-"  + self.path.name
 
   private var state: A = Entity.companion[A].empty
 
-  private val ctx = Context(timeProvider, Some(context), log)
+  private val ctx = Context(fc.timeProvider, Some(context), log)
 
   override def receiveRecover: Receive = {
     case SnapshotOffer(_, ss) => state = ss.asInstanceOf[A]
@@ -32,7 +32,13 @@ class EventSourcedEntity[A <: Entity[A] : ru.TypeTag](implicit timeProvider: Tim
       context.setReceiveTimeout(timeout)
     case ControlMessages.StreamCommandEnvelope(t, o, m) =>
       val events = (state.receive(ctx) orElse state.unhandled(ctx))(m).to[collection.immutable.Seq]
-      if (events.nonEmpty) persistAll[Event](events){ e => state = state.applyEvent(e) }
+      if (events.nonEmpty) {
+        if (fc.asyncIO)
+          persistAllAsync[Event](events) { e => state = state.applyEvent(e) }
+        else
+          persistAll[Event](events) { e => state = state.applyEvent(e) }
+
+      }
       sender ! events
                  .map { e => StreamEventEnvelope(t, o, e) }
                  .collect { case see @ StreamEventEnvelope(_, _, e: Externalized) => see } ++ Seq(ControlMessages.StreamEventEnvelope(t, o, ControlMessages.CommandComplete))
@@ -44,5 +50,5 @@ class EventSourcedEntity[A <: Entity[A] : ru.TypeTag](implicit timeProvider: Tim
 }
 
 object EventSourcedEntity extends EntityPropsFactory {
-  override def props[A <: Entity[A]: ru.TypeTag](implicit timeProvider: TimeProvider): Props = Props(new EventSourcedEntity[A])
+  override def props[A <: Entity[A]: ru.TypeTag](implicit fc: FusionConfig): Props = Props(new EventSourcedEntity[A])
 }

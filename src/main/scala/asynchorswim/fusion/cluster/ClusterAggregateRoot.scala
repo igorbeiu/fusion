@@ -8,7 +8,7 @@ import ops.plasma.fusion._
 
 import reflect.runtime.{universe => ru}
 
-class ClusterAggregateRoot[A <: Entity[A] : ru.TypeTag](entityPropsFactory: EntityPropsFactory, typeName: String,  proxyOnly: Boolean = false)(implicit timeProvider: TimeProvider)
+class ClusterAggregateRoot[A <: Entity[A] : ru.TypeTag](entityPropsFactory: EntityPropsFactory, typeName: String,  proxyOnly: Boolean = false)(implicit fc: FusionConfig)
   extends Actor with ActorLogging {
 
   private val shardRegion: ActorRef =
@@ -51,6 +51,6 @@ class ClusterAggregateRoot[A <: Entity[A] : ru.TypeTag](entityPropsFactory: Enti
 }
 
 object ClusterAggregateRoot {
-  def props[A <: Entity[A] : ru.TypeTag](epf: EntityPropsFactory, typeName: String, proxyOnly: Boolean = false)(implicit timeProvider: TimeProvider): Props =
+  def props[A <: Entity[A] : ru.TypeTag](epf: EntityPropsFactory, typeName: String, proxyOnly: Boolean = false)(implicit fc: FusionConfig): Props =
     Props(new ClusterAggregateRoot[A](epf, typeName, proxyOnly))
 }

@@ -14,7 +14,7 @@ import language.postfixOps
 class TransientEntityUnitTest extends AsyncFlatSpec with Matchers {
   private val system = ActorSystem()
   private val now = Instant.now
-  private implicit val timeProvider = new FixedTimeProvider(now)
+  private implicit val fc = FusionConfig(new FixedTimeProvider(now), asyncIO = false)
   private val sut = system.actorOf(TransientEntity.props[TestEntity], "testEntity")
   private implicit val timeout = Timeout(1 second)
 

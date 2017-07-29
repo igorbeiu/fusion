@@ -88,7 +88,7 @@ class ClusterAggregateRootUnitTest extends AsyncFlatSpec with Matchers {
   private val config = ConfigFactory.parseString(configString)
   private val system = ActorSystem("TestSystem", config)
   private val now = Instant.now
-  private implicit val timeProvider = new FixedTimeProvider(now)
+  private implicit val fc = FusionConfig(new FixedTimeProvider(now), asyncIO = false)
   private implicit val timeout = Timeout(10 second)
   private val sut = system.actorOf(ClusterAggregateRoot.props[WordCount](TransientEntity, "WordCount"), "Words")
 

@@ -5,12 +5,12 @@ import asynchorswim.fusion.ControlMessages.StreamEventEnvelope
 
 import scala.reflect.runtime.{universe => ru}
 
-class PersistentEntity[A <: Entity[A] with Persistable : ru.TypeTag](persistor: Persistor[A])(implicit timeProvider: TimeProvider) extends Actor with ActorLogging {
+class PersistentEntity[A <: Entity[A] with Persistable : ru.TypeTag](persistor: Persistor[A])(implicit fc: FusionConfig) extends Actor with ActorLogging {
   private val persistenceId: String = context.parent.path.name + "-" + self.path.name
 
   private var state: A = persistor.get(self.path.name).getOrElse(Entity.companion[A].empty)
 
-  private val ctx = Context(timeProvider, Some(context), log)
+  private val ctx = Context(fc.timeProvider, Some(context), log)
 
   override def receive: Receive = {
     case ControlMessages.Stop =>
@@ -35,5 +35,5 @@ class PersistentEntity[A <: Entity[A] with Persistable : ru.TypeTag](persistor: 
 }
 
 class PersistentEntityPropsFactory[A <: Entity[A] with Persistable : ru.TypeTag](persistor: Persistor[A]) extends EntityPropsFactory {
-  override def props[B <: Entity[B] : ru.TypeTag](implicit timeProvider: TimeProvider): Props = Props(new PersistentEntity[A](persistor))
+  override def props[B <: Entity[B] : ru.TypeTag](implicit fc: FusionConfig): Props = Props(new PersistentEntity[A](persistor))
 }

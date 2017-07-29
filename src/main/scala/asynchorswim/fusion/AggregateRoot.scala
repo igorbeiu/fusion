@@ -5,7 +5,7 @@ import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import scala.collection.mutable
 import scala.reflect.runtime.{universe => ru}
 
-class AggregateRoot[A <: Entity[A] : ru.TypeTag](epf: EntityPropsFactory)(implicit timeProvider: TimeProvider) extends Actor with ActorLogging {
+class AggregateRoot[A <: Entity[A] : ru.TypeTag](epf: EntityPropsFactory)(implicit fc: FusionConfig) extends Actor with ActorLogging {
   private val entities = new mutable.AnyRefMap[String, ActorRef]
 
   override def receive: Receive = {
@@ -32,5 +32,5 @@ class AggregateRoot[A <: Entity[A] : ru.TypeTag](epf: EntityPropsFactory)(implic
 }
 
 object AggregateRoot {
-  def props[A <: Entity[A] : ru.TypeTag](epf: EntityPropsFactory)(implicit timeProvider: TimeProvider): Props = Props(new AggregateRoot[A](epf))
+  def props[A <: Entity[A] : ru.TypeTag](epf: EntityPropsFactory)(implicit fc: FusionConfig): Props = Props(new AggregateRoot[A](epf))
 }

@@ -18,7 +18,7 @@ import scala.language.postfixOps
 class ProcessingStreamUnitTest extends FlatSpec with Matchers {
 
   private val now = Instant.now()
-  implicit val timeProvider = new FixedTimeProvider(now)
+  implicit val fc = FusionConfig(new FixedTimeProvider(now), asyncIO = false)
   implicit val system = ActorSystem()
   implicit val mat = ActorMaterializer()
   implicit val akkaTimeout = Timeout(10.seconds)
