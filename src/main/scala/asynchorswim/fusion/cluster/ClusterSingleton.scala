@@ -1,4 +1,4 @@
-package ops.plasma.fusion.cluster
+package asynchorswim.fusion.cluster
 
 import akka.actor.{ActorSystem, Props}
 import akka.cluster.singleton.{ClusterSingletonManager, ClusterSingletonManagerSettings}
