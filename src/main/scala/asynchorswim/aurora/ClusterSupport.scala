@@ -1,3 +1,5 @@
+package asynchorswim.aurora
+
 import akka.cluster.Cluster
 import collection.JavaConverters._
 
