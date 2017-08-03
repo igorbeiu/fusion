@@ -32,11 +32,12 @@ class EventSourcedEntity[A <: Entity[A] : ru.TypeTag](implicit fc: FusionConfig)
       context.setReceiveTimeout(timeout)
     case ControlMessages.StreamCommandEnvelope(t, o, m) =>
       val events = (state.receive(ctx) orElse state.unhandled(ctx))(m).to[collection.immutable.Seq]
-      if (events.nonEmpty) {
+      val persistableEvents = events.filterNot(_.instanceOf[Ephemeral])
+      if (persistableEvents.nonEmpty) {
         if (fc.asyncIO)
-          persistAllAsync[Event](events) { e => state = state.applyEvent(e) }
+          persistAllAsync[Event](persistableEvents) { e => state = state.applyEvent(e) }
         else
-          persistAll[Event](events) { e => state = state.applyEvent(e) }
+          persistAll[Event](persistableEvents) { e => state = state.applyEvent(e) }
 
       }
       sender ! events
@@ -45,7 +46,13 @@ class EventSourcedEntity[A <: Entity[A] : ru.TypeTag](implicit fc: FusionConfig)
     case _: ControlMessage =>
     case msg =>
       val events = (state.receive(ctx) orElse state.unhandled(ctx))(msg).to[collection.immutable.Seq]
-      if (events.nonEmpty) persistAll[Event](events){ e => state = state.applyEvent(e) }
+      val persistableEvents = events.filterNot(_.instanceOf[Ephemeral])
+      if (persistableEvents.nonEmpty) {
+        if (fc.asyncIO)
+          persistAllAsync[Event](persistableEvents) { e => state = state.applyEvent(e) }
+        else
+          persistAll[Event](persistableEvents) { e => state = state.applyEvent(e) }
+      }
   }
 }
 
