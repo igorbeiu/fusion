@@ -1,13 +1,13 @@
 package asynchorswim.aurora
 
-import akka.actor.{Actor, ActorLogging}
+import akka.actor.{Actor, ActorLogging, Props}
 import akka.util.Timeout
 import com.typesafe.config.Config
 import io.getquill.{CassandraAsyncContext, SnakeCase}
 import scala.collection.mutable
 import scala.concurrent.Await
 
-class SharedBookmarks(config: Config, appName: Symbol, default: String)(implicit timeout: Timeout) extends Actor with ActorLogging {
+class CassandraBackedBookmarks(config: Config, appName: Symbol, default: String)(implicit timeout: Timeout) extends Actor with ActorLogging {
 
   private val bm = new mutable.AnyRefMap[String, String]
   private lazy val ctx = new CassandraAsyncContext[SnakeCase](appName.name)
@@ -32,6 +32,10 @@ class SharedBookmarks(config: Config, appName: Symbol, default: String)(implicit
       }
       ctx.run(a)
   }
+}
+
+object CassandraBackedBookmarks {
+  def props(config: Config, appName: Symbol, default: String): Props = Props(new CassandraBackedBookmarks(config, appName, default)) 
 }
 
 final case class BookmarkEntry(app: String, topic: String, value: String)
