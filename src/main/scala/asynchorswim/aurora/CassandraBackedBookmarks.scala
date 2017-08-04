@@ -35,7 +35,7 @@ class CassandraBackedBookmarks(config: Config, appName: Symbol, default: String)
 }
 
 object CassandraBackedBookmarks {
-  def props(config: Config, appName: Symbol, default: String): Props = Props(new CassandraBackedBookmarks(config, appName, default)) 
+  def props(config: Config, appName: Symbol, default: String)(implicit timeout: Timeout): Props = Props(new CassandraBackedBookmarks(config, appName, default)) 
 }
 
 final case class BookmarkEntry(app: String, topic: String, value: String)
