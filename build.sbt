@@ -3,7 +3,7 @@ import ReleaseTransformations._
 name := "fusion"
 organization := "net.asynchorswim"
 
-scalaVersion := "2.12.2"
+scalaVersion := "2.12.3"
 releasePublishArtifactsAction := PgpKeys.publishSigned.value
 releaseIgnoreUntrackedFiles := true
 
