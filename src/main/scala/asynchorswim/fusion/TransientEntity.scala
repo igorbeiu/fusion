@@ -15,13 +15,13 @@ class TransientEntity[A <: Entity[A] : ru.TypeTag](implicit fc: FusionConfig) ex
       context.stop(self)
     case ControlMessages.StreamCommandEnvelope(t, o, m) =>
       sender ! (state.receive(ctx) orElse state.unhandled(ctx))(m)
-        .map { e =>  state = state.applyEvent(e); StreamEventEnvelope(t, o, e) }
+        .map { e =>  if (!e.isInstanceOf[Informational]) { state = state.applyEvent(e) }; StreamEventEnvelope(t, o, e) }
         .collect { case see @ StreamEventEnvelope(_, _, e: Externalized) => see } ++ Seq(StreamEventEnvelope(t, o, ControlMessages.CommandComplete))
     case ControlMessages.SetInactivityTimeout(timeout) =>
       context.setReceiveTimeout(timeout)
     case _: ControlMessage =>
     case msg =>
-      (state.receive(ctx) orElse state.unhandled(ctx))(msg) foreach { e =>  state = state.applyEvent(e) }
+      (state.receive(ctx) orElse state.unhandled(ctx))(msg) foreach { e => if (!e.isInstanceOf[Informational]) { state = state.applyEvent(e) }}
   }
 }
 

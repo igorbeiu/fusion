@@ -22,14 +22,14 @@ class PersistentEntity[A <: Entity[A] with Persistable : ru.TypeTag](persistor: 
       context.setReceiveTimeout(timeout)
     case ControlMessages.StreamCommandEnvelope(t, o, m) =>
       val retVal = (state.receive(ctx) orElse state.unhandled(ctx))(m)
-        .map { e =>  state = state.applyEvent(e); StreamEventEnvelope(t, o, e) }
+        .map { e =>  if (!e.isInstanceOf[Informational]) { state = state.applyEvent(e) }; StreamEventEnvelope(t, o, e) }
         .collect { case see @ StreamEventEnvelope(_, _, e: Externalized) => see } ++ Seq(ControlMessages.StreamEventEnvelope(t, o, ControlMessages.CommandComplete))
       if (retVal.nonEmpty) persistor.put(persistenceId, state)
       sender ! retVal
     case _: ControlMessage =>
     case msg =>
       val events = (state.receive(ctx) orElse state.unhandled(ctx))(msg)
-      events foreach { e =>  state = state.applyEvent(e) }
+      events foreach { e =>  if (!e.isInstanceOf[Informational]) { state = state.applyEvent(e) } }
       if (events.nonEmpty) persistor.put(persistenceId, state)
   }
 }

@@ -6,7 +6,7 @@ trait Event
 
 trait Externalized
 
-trait Ephemeral extends Externalized
+trait Informational extends Externalized
 
 trait ShardingId {
   def id: String

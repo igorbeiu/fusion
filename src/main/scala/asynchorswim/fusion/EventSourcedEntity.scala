@@ -32,7 +32,7 @@ class EventSourcedEntity[A <: Entity[A] : ru.TypeTag](implicit fc: FusionConfig)
       context.setReceiveTimeout(timeout)
     case ControlMessages.StreamCommandEnvelope(t, o, m) =>
       val events = (state.receive(ctx) orElse state.unhandled(ctx))(m).to[collection.immutable.Seq]
-      val persistableEvents = events.filterNot(_.isInstanceOf[Ephemeral])
+      val persistableEvents = events.filterNot(_.isInstanceOf[Informational])
       if (persistableEvents.nonEmpty) {
         if (fc.asyncIO)
           persistAllAsync[Event](persistableEvents) { e => state = state.applyEvent(e) }
@@ -46,7 +46,7 @@ class EventSourcedEntity[A <: Entity[A] : ru.TypeTag](implicit fc: FusionConfig)
     case _: ControlMessage =>
     case msg =>
       val events = (state.receive(ctx) orElse state.unhandled(ctx))(msg).to[collection.immutable.Seq]
-      val persistableEvents = events.filterNot(_.isInstanceOf[Ephemeral])
+      val persistableEvents = events.filterNot(_.isInstanceOf[Informational])
       if (persistableEvents.nonEmpty) {
         if (fc.asyncIO)
           persistAllAsync[Event](persistableEvents) { e => state = state.applyEvent(e) }
