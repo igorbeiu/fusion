@@ -13,5 +13,5 @@ object ControlMessages {
   final case class StreamCommandEnvelope[A](topic: String, offset: A, message: Any)
   final case class StreamEventEnvelope[A](topic: String, offset: A, event: Event)
 
-  case object CommandComplete extends ControlMessage with Event with Externalized
+  case object CommandComplete extends ControlMessage with Event with Informational
 }
