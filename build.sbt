@@ -75,6 +75,7 @@ libraryDependencies ++= Seq(
   "io.kamon" %% "kamon-core" % kamonVersion,
   "io.getquill" %% "quill" % quillVersion,
   "io.getquill" %% "quill-cassandra" % quillVersion,
+  "com.lightbend.akka" %% "akka-management-cluster-http" % "0.3",
 
   "com.github.dnvriend" %% "akka-persistence-inmemory" % "2.5.0.0" % "test",
   "org.mockito" % "mockito-all" % "1.10.19" % "test",
