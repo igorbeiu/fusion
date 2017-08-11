@@ -44,7 +44,7 @@ releaseProcess := Seq[ReleaseStep](
   pushChanges
 )
 
-val akkaVersion = "2.5.3"
+val akkaVersion = "2.5.4"
 val json4sVersion = "3.5.2"
 val kamonVersion = "0.6.7"
 val quillVersion = "1.2.1"
