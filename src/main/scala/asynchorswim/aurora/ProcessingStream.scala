@@ -8,14 +8,14 @@ import akka.util.Timeout
 import asynchorswim.fusion.{ControlMessages, EntityRefFlow, Event}
 import asynchorswim.fusion.ControlMessages.{StreamCommandEnvelope, StreamEventEnvelope}
 
-class ProcessingStream(in: Source[StreamCommandEnvelope[_], NotUsed], domain: ActorRef, bookmarks: ActorRef, notify: PartialFunction[Event, Unit], metrics: StreamMetrics)
+class ProcessingStream(in: Source[StreamCommandEnvelope[_], NotUsed], domain: ActorRef, bookmarks: ActorRef, notify: PartialFunction[Event, Unit], metrics: StreamMetrics, parallelizm: Int = 1, maintainOrder: Boolean = true)
   (implicit val mat: ActorMaterializer, timrout: Timeout) extends Actor with ActorLogging {
 
   private val stream =
     in
       .log("StreamCommands", sce => sce)
       .map { c => metrics.in.increment(); c}
-      .via(new EntityRefFlow(domain).flow)
+      .via(new EntityRefFlow(domain, parallelizm, maintainOrder).flow)
       .map { case see@StreamEventEnvelope(_, _, e) =>
         metrics.events.increment()
         (notify orElse ProcessingStream.ignore) (e)
@@ -35,6 +35,6 @@ object ProcessingStream {
 
   val ignore: PartialFunction[Event, Unit] = { case evt: Event => }
 
-  def props(in: Source[StreamCommandEnvelope[_], NotUsed], domain: ActorRef, bookmarks: ActorRef, notify: PartialFunction[Event, Unit], metrics: StreamMetrics = StreamMetrics.empty)(implicit mat: ActorMaterializer, timrout: Timeout): Props =
-    Props(new ProcessingStream(in, domain, bookmarks, notify, metrics))
+  def props(in: Source[StreamCommandEnvelope[_], NotUsed], domain: ActorRef, bookmarks: ActorRef, notify: PartialFunction[Event, Unit], metrics: StreamMetrics = StreamMetrics.empty, parallelizm: Int = 1, maintainOrder: Boolean = true)(implicit mat: ActorMaterializer, timrout: Timeout): Props =
+    Props(new ProcessingStream(in, domain, bookmarks, notify, metrics, parallelizm, maintainOrder))
 }
