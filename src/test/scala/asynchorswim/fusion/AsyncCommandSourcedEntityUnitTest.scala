@@ -6,13 +6,14 @@ import akka.actor.ActorSystem
 import akka.util.Timeout
 import com.typesafe.config.ConfigFactory
 import ControlMessages.{StreamCommandEnvelope, StreamEventEnvelope}
-import org.scalatest.{AsyncFlatSpec, Matchers}
+import org.scalatest.{AsyncFlatSpec, BeforeAndAfterAll, Matchers}
 import akka.pattern.ask
+import org.scalatest.words.ResultOfTaggedAsInvocation
 
 import concurrent.duration._
 import language.postfixOps
 
-class AsyncCommandSourcedEntityUnitTest  extends AsyncFlatSpec with Matchers {
+class AsyncCommandSourcedEntityUnitTest  extends AsyncFlatSpec with Matchers with BeforeAndAfterAll {
 
   private val configString =
     s"""
@@ -87,4 +88,5 @@ class AsyncCommandSourcedEntityUnitTest  extends AsyncFlatSpec with Matchers {
     (sut3 ? "value") map { _ shouldBe 0 }
   }
 
+  override def afterAll(): Unit = system.terminate()
 }

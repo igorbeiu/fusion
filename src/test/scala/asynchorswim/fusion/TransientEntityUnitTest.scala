@@ -3,7 +3,7 @@ package asynchorswim.fusion
 import java.time.Instant
 
 import akka.actor.ActorSystem
-import org.scalatest.{AsyncFlatSpec, Matchers}
+import org.scalatest.{AsyncFlatSpec, BeforeAndAfterAll, Matchers}
 import akka.pattern.ask
 import akka.util.Timeout
 import ControlMessages.{StreamCommandEnvelope, StreamEventEnvelope}
@@ -11,7 +11,7 @@ import ControlMessages.{StreamCommandEnvelope, StreamEventEnvelope}
 import concurrent.duration._
 import language.postfixOps
 
-class TransientEntityUnitTest extends AsyncFlatSpec with Matchers {
+class TransientEntityUnitTest extends AsyncFlatSpec with Matchers with BeforeAndAfterAll {
   private val system = ActorSystem()
   private val now = Instant.now
   private implicit val fc = FusionConfig(new FixedTimeProvider(now), asyncIO = false)
@@ -42,5 +42,7 @@ class TransientEntityUnitTest extends AsyncFlatSpec with Matchers {
     val sut2 =  system.actorOf(TransientEntity.props[TestEntity], "testEntity")
     (sut2 ? "value") map { _ shouldBe 0 }
   }
+
+  override def afterAll(): Unit = system.terminate()
 }
 

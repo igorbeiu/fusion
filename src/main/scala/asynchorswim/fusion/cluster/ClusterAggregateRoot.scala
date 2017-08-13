@@ -1,4 +1,4 @@
-package ops.plasma.fusion.cluster
+package asynchorswim.fusion.cluster
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.cluster.sharding.{ClusterSharding, ClusterShardingSettings}

@@ -1,21 +1,19 @@
-package ops.plasma.fusion.cluster
+package asynchorswim.fusion.cluster
 
 import java.time.Instant
 
 import akka.actor.ActorSystem
 import akka.util.Timeout
 import com.typesafe.config.ConfigFactory
-import ops.plasma.fusion._
-import ops.plasma.fusion.cluster.WordCount.{Count, Increment, Query}
-import org.scalatest.{AsyncFlatSpec, Matchers}
+import org.scalatest.{AsyncFlatSpec, BeforeAndAfterAll, Matchers}
 import akka.pattern.ask
-import asynchorswim.fusion
 import asynchorswim.fusion._
+import asynchorswim.fusion.cluster.WordCount.Count
 
 import concurrent.duration._
 import language.postfixOps
 
-class ClusterAggregateRootUnitTest extends AsyncFlatSpec with Matchers {
+class ClusterAggregateRootUnitTest extends AsyncFlatSpec with Matchers with BeforeAndAfterAll {
   private val configString =
     s"""
        |akka {
@@ -26,7 +24,7 @@ class ClusterAggregateRootUnitTest extends AsyncFlatSpec with Matchers {
        |    log-remote-lifecycle-events = off
        |    netty.tcp {
        |      hostname = "127.0.0.1"
-       |      port = 2552
+       |      port = 2555
        |    }
        |  }
        |  persistence {
@@ -34,7 +32,7 @@ class ClusterAggregateRootUnitTest extends AsyncFlatSpec with Matchers {
        |    snapshot-store.plugin = "inmemory-snapshot-store"
        |  }
        |  cluster {
-       |    seed-nodes = ["akka.tcp://TestSystem@127.0.0.1:2552"]
+       |    seed-nodes = ["akka.tcp://TestSystem@127.0.0.1:2555"]
        |    sharding {
        |      guardian-name = sharding
        |      role = ""
@@ -86,7 +84,7 @@ class ClusterAggregateRootUnitTest extends AsyncFlatSpec with Matchers {
        |}
      """.stripMargin
   private val config = ConfigFactory.parseString(configString)
-  private val system = ActorSystem("TestSystem", config)
+  private val system = ActorSystem("ClusterTestSystem", config)
   private val now = Instant.now
   private implicit val fc = FusionConfig(new FixedTimeProvider(now), asyncIO = false)
   private implicit val timeout = Timeout(10 second)
@@ -107,9 +105,12 @@ class ClusterAggregateRootUnitTest extends AsyncFlatSpec with Matchers {
     (sut ? Query("THE")) map { _ shouldBe 0 }
   }
 
+  override def afterAll(): Unit = system.terminate()
+
 }
 
 case class WordCount(count: Int) extends Entity[WordCount] {
+  import WordCount._
 
   override def receive(implicit ctx: Context): PartialFunction[Any, Seq[Event]] = {
     case Count(w) => applying(Increment)
@@ -121,7 +122,7 @@ case class WordCount(count: Int) extends Entity[WordCount] {
   }
 }
 
-object WordCount extends fusion.EntityCompanion[WordCount] {
+object WordCount extends EntityCompanion[WordCount] {
   val empty = WordCount(0)
 
   case class Count(id: String) extends ShardingId with Command

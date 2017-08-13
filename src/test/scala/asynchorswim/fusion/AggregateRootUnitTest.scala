@@ -5,12 +5,12 @@ import java.time.Instant
 import akka.actor.ActorSystem
 import akka.pattern.ask
 import akka.util.Timeout
-import org.scalatest.{AsyncFlatSpec, Matchers}
+import org.scalatest.{AsyncFlatSpec, BeforeAndAfterAll, Matchers}
 
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
-class AggregateRootUnitTest extends AsyncFlatSpec with Matchers {
+class AggregateRootUnitTest extends AsyncFlatSpec with Matchers with BeforeAndAfterAll {
   private val now = Instant.now
   private implicit val fc = FusionConfig(new FixedTimeProvider(now), asyncIO = false)
   private implicit val timeout = Timeout(1 second)
@@ -39,4 +39,6 @@ class AggregateRootUnitTest extends AsyncFlatSpec with Matchers {
     Thread.sleep(500)
     (sut ? Query("0")) map { v => v shouldBe 0}
   }
+
+  override def afterAll(): Unit = system.terminate()
 }

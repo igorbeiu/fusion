@@ -7,12 +7,12 @@ import akka.pattern.ask
 import akka.util.Timeout
 import asynchorswim.fusion.ControlMessages.{StreamCommandEnvelope, StreamEventEnvelope}
 import com.typesafe.config.ConfigFactory
-import org.scalatest.{AsyncFlatSpec, Matchers}
+import org.scalatest.{AsyncFlatSpec, BeforeAndAfterAll, Matchers}
 
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
-class EventSourcedEntityUnitTest extends AsyncFlatSpec with Matchers {
+class EventSourcedEntityUnitTest extends AsyncFlatSpec with Matchers with BeforeAndAfterAll {
 
   private val configString =
     s"""
@@ -82,7 +82,8 @@ class EventSourcedEntityUnitTest extends AsyncFlatSpec with Matchers {
     Thread.sleep(1000)
     val sut4 = system.actorOf(EventSourcedEntity.props[TestEntity], "testEntity")
     (sut4 ? "value") map { _ shouldBe 1 }
-
   }
+
+  override def afterAll(): Unit = system.terminate()
 
 }
