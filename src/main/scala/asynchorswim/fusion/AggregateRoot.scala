@@ -1,8 +1,6 @@
 package asynchorswim.fusion
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props, Terminated}
-import akka.cluster.Reachability.Terminated
-
 import scala.collection.mutable
 import scala.concurrent.duration.Duration
 import scala.reflect.runtime.{universe => ru}
