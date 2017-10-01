@@ -1,6 +1,6 @@
 package asynchorswim.fusion
 
-import akka.actor.{Actor, ActorLogging, Props}
+import akka.actor.{Actor, ActorLogging, Props, ReceiveTimeout}
 import asynchorswim.fusion.ControlMessages.StreamEventEnvelope
 
 import scala.reflect.runtime.{universe => ru}
@@ -19,6 +19,8 @@ class TransientEntity[A <: Entity[A] : ru.TypeTag](implicit fc: FusionConfig) ex
         .collect { case see @ StreamEventEnvelope(_, _, e: Externalized) => see } ++ Seq(StreamEventEnvelope(t, o, ControlMessages.CommandComplete))
     case ControlMessages.SetInactivityTimeout(timeout) =>
       context.setReceiveTimeout(timeout)
+    case ReceiveTimeout =>
+      context.stop(self)
     case _: ControlMessage =>
     case msg =>
       (state.receive(ctx) orElse state.unhandled(ctx))(msg) foreach { e => if (!e.isInstanceOf[Informational]) { state = state.applyEvent(e) }}

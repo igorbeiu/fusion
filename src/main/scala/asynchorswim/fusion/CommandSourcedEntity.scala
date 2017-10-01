@@ -1,6 +1,6 @@
 package asynchorswim.fusion
 
-import akka.actor.{ActorLogging, Props, Stash}
+import akka.actor.{ActorLogging, Props, ReceiveTimeout, Stash}
 import akka.persistence.{PersistentActor, RecoveryCompleted, SnapshotOffer}
 import ControlMessages.StreamEventEnvelope
 
@@ -32,6 +32,8 @@ class CommandSourcedEntity[A <: Entity[A] : ru.TypeTag](implicit fc: FusionConfi
       context.stop(self)
     case ControlMessages.SetInactivityTimeout(timeout) =>
       context.setReceiveTimeout(timeout)
+    case ReceiveTimeout =>
+      context.stop(self)
     case ControlMessages.TakeSnapshot =>
       saveSnapshot(state)
     case ControlMessages.StreamCommandEnvelope(t, o, c: Command) =>

@@ -1,6 +1,6 @@
 package asynchorswim.fusion
 
-import akka.actor.{ActorLogging, Props, Stash}
+import akka.actor.{ActorLogging, Props, ReceiveTimeout, Stash}
 import akka.persistence.{PersistentActor, RecoveryCompleted, SnapshotOffer}
 import asynchorswim.fusion.ControlMessages.StreamEventEnvelope
 
@@ -30,6 +30,8 @@ class EventSourcedEntity[A <: Entity[A] : ru.TypeTag](implicit fc: FusionConfig)
       context.stop(self)
     case ControlMessages.SetInactivityTimeout(timeout) =>
       context.setReceiveTimeout(timeout)
+    case ReceiveTimeout =>
+      context.stop(self)
     case ControlMessages.StreamCommandEnvelope(t, o, m) =>
       val events = (state.receive(ctx) orElse state.unhandled(ctx))(m).to[collection.immutable.Seq]
       val persistableEvents = events.filterNot(_.isInstanceOf[Informational])

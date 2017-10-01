@@ -1,6 +1,6 @@
 package asynchorswim.fusion
 
-import akka.actor.{Actor, ActorLogging, Props}
+import akka.actor.{Actor, ActorLogging, Props, ReceiveTimeout}
 import asynchorswim.fusion.ControlMessages.StreamEventEnvelope
 
 import scala.reflect.runtime.{universe => ru}
@@ -20,6 +20,8 @@ class PersistentEntity[A <: Entity[A] with Persistable : ru.TypeTag](persistor: 
       context.stop(self)
     case ControlMessages.SetInactivityTimeout(timeout)  =>
       context.setReceiveTimeout(timeout)
+    case ReceiveTimeout =>
+      context.stop(self)
     case ControlMessages.StreamCommandEnvelope(t, o, m) =>
       val retVal = (state.receive(ctx) orElse state.unhandled(ctx))(m)
         .map { e =>  if (!e.isInstanceOf[Informational]) { state = state.applyEvent(e) }; StreamEventEnvelope(t, o, e) }
