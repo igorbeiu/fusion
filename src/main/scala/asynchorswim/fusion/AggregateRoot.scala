@@ -32,7 +32,7 @@ class AggregateRoot[A <: Entity[A] : ru.TypeTag](epf: EntityPropsFactory)(implic
   }
 
   private def sendToChild(id: String, msg: Any) = {
-    val isNew = entities.isDefinedAt(id)
+    val isNew = !entities.isDefinedAt(id)
     val target = entities.getOrElseUpdate(id, context.actorOf(epf.props[A], id))
     if (isNew) {
       context watch target
